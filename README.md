@@ -42,24 +42,47 @@ SparkConf sparkConf = new SparkConf()
         df.show();
 ```
 
+### DataFrame 常用操作
 
+打印DataFrame中所有的数据
 
+```java
+df.show();
+```
 
+打印DataFrame的元数据 (Schema)
 
+```java
+df.printSchema();
 
+```
 
+查询某列所有数据
 
+```java
+df.select("name").show();
 
+```
 
+查询某几列所有数据,并对列进行计算
 
+```java
+df.select(df.col("name"),df.col("age").plus(1)).show();
 
+```
 
+根据某一列的值进行过滤
 
+```java
+df.filter(df.col("age").gt(18)).show();
 
+```
 
+根据某一列进行分组,然后进行聚合
 
-
-
+```java
+df.groupBy(df.col("age")).count().show();
+```
 
 
 
