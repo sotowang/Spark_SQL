@@ -159,15 +159,54 @@ JavaRDD<String> lines = jsc.textFile("/home/sotowang/user/aur/ide/idea/idea-IU-1
 > 2.将RDD中的数据,进行映射,映射为student时,其RDD中student的属性顺序会乱(与文件中顺序不一致)
 
 
+#### 以编程方式动态指定元数据,将RDD转换为DataFrame
+
+```java
+
+```
+
+出现的问题:
+
+>1.报错:不能直接从String转换为Integer的一个类型转换错误,说明有个数据,给定义成了String类型,结果使用的时候
+要用Integer类型来使用,错误报在sql相关的代码中.在sql中,用到age<=18语法,所以强行将age转换为Integer来使用,
+但之前有些步骤将age定义了String
 
 
+```java
+ //第一步,创建一个普通的RDD,但是,必须将其转换为RDD<Row>的这种格式
+        final JavaRDD<String> lines = jsc.textFile("/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject/src/resources/students.json");
 
+        JavaRDD<Row> studentRDD = lines.map(new Function<String, Row>() {
+            public Row call(String line) throws Exception {
+                String[] lineSplited = line.split(",");
 
+                return RowFactory.create(Integer.valueOf(lineSplited[0]), lineSplited[1], Integer.valueOf(lineSplited[2]));
 
+            }
+        });
 
+        //第二步:动态构造元数据
+        //比如说,id,name等,field的名称和类型,可能都是在程序运行过程中,动态从mysql,db里
+        //或者是配置文件中加载的,不固定
+        //所以特别适合用这种编程方式,来构造元数据
+        List<StructField> structFields = new ArrayList<StructField>();
+        structFields.add(DataTypes.createStructField("id", DataTypes.IntegerType, true));
+        structFields.add(DataTypes.createStructField("name", DataTypes.StringType, true));
+        structFields.add(DataTypes.createStructField("age", DataTypes.IntegerType, true));
 
+        StructType structType = DataTypes.createStructType(structFields);
 
+        //第三步,使用动态构造的元数据,将RDD转为DataFrame
+        DataFrame studentDF = sqlContext.createDataFrame(studentRDD, structType);
 
+        studentDF.registerTempTable("students");
+        DataFrame teenagerDF = sqlContext.sql("select * from students where age <= 18");
+        List<Row> rows = teenagerDF.javaRDD().collect();
+
+        for (Row row : rows) {
+            System.out.println(row);
+        }
+```
 
 
 
