@@ -16,7 +16,7 @@ public class ParquetLoadData {
 
     public static void main(String[] args) {
         SparkConf sparkConf = new SparkConf()
-                .setAppName("ManuallySpecifyOptions")
+                .setAppName("ParquetLoadData")
                 .setMaster("local");
 
         JavaSparkContext jsc = new JavaSparkContext(sparkConf);

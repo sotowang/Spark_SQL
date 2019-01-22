@@ -264,7 +264,7 @@ SaveMode.ignore 忽略
 列式存储与行式存储有哪些优势?
 
 ```markdown
-1. 可以路过不符合条件的数据,只需要读取需要的数据,了筏IO数据量
+1. 可以路过不符合条件的数据,只需要读取需要的数据,降低IO数据量
 2. 压缩编码可以降低磁盘存储空间,由于同一列的数据类型是一样的,可以使用更高效的压缩编码(如Run Length Encoding和Delta Encoding) 进一步节约存储空间
 3. 只读取需要的列,支持向量运算,能够获取更好的扫描性能
 
@@ -292,15 +292,84 @@ for (String userName : userNames) {
 
 ## 数据源Parquet之自动分区推断 
 
+用户也许不希望Spark SQL自动推断分区列的数据类型。此时只要设置一个配置即可， 
+
+```java
+spark.sql.sources.partitionColumnTypeInference.enabled
+```
+
+，默认为true，即自动推断分区列的类型，设置为false，即不会自动推断类型。
+禁止自动推断分区列的类型时，所有分区列的类型，就统一默认都是String。
+
+
+## 数据源Parquet之合并元数据(默认关闭)  ParquetMergeSchema.java
+
+案例:合并学生的基本信息和成绩信息的源数据
+
+```java
+//创建一个DataFrame,作为学生的基本信息,并写入一个parquet文件中
+
+List<Tuple2<String, Integer>> studentsWithNameAge = Arrays.asList(new Tuple2<String, Integer>("leo", 23), new Tuple2<String, Integer>("Jack", 25));
+
+JavaRDD<Row> studentWithNameAgeRDD = jsc.parallelize(studentsWithNameAge).map(new Function<Tuple2<String, Integer>, Row>() {
+    public Row call(Tuple2<String, Integer> student) throws Exception {
+        return RowFactory.create(student._1, student._2);
+    }
+});
+
+List<StructField> structFields_age = new ArrayList<StructField>();
+
+structFields_age.add(DataTypes.createStructField("name", DataTypes.StringType, true));
+structFields_age.add(DataTypes.createStructField("age", DataTypes.IntegerType, true));
+
+StructType structType_age = DataTypes.createStructType(structFields_age);
+
+//创建一个DataFrame,作为学生的基本信息,并写入一个parquet文件
+DataFrame studentsWithNameAgeDF = sqlContext.createDataFrame(studentWithNameAgeRDD, structType_age);
+studentsWithNameAgeDF.save("/home/sotowang/Desktop/students", SaveMode.Append);
 
 
 
+//创建第二个DataFrame,作为学生的成绩信息,并写入一个parquet文件中
+List<Tuple2<String, String>> studentsWithNameGrade = Arrays.asList(new Tuple2<String, String>("marry", "A"), new Tuple2<String, String>("tom", "B"));
+JavaRDD<Row> studentsWithNameGradeRDD = jsc.parallelize(studentsWithNameGrade).map(new Function<Tuple2<String, String>, Row>() {
+    public Row call(Tuple2<String, String> student) throws Exception {
+        return RowFactory.create(student._1, student._2);
+    }
+});
+List<StructField> structFields_grade = new ArrayList<StructField>();
+structFields_grade.add(DataTypes.createStructField("name", DataTypes.StringType, true));
+structFields_grade.add(DataTypes.createStructField("grade", DataTypes.StringType, true));
+StructType structType_grade = DataTypes.createStructType(structFields_grade);
+
+//创建一个DataFrame,作为学生的基本信息,并写入一个parquet文件
+DataFrame studentsWithNameGradeDF = sqlContext.createDataFrame(studentsWithNameGradeRDD, structType_grade);
+studentsWithNameGradeDF.save("/home/sotowang/Desktop/students", SaveMode.Append);
 
 
+//第一个DataFrame和第二个DataFrame的元数据不一样,一个是包含了name和age两列,一个是包含了name和grade两列
+//这里期望读出来的表数据,自动合并含两个文件的元数据,出现三个列,name age grade
 
+//有mergeSchema的方式读取students表中的数据,进行元数据的合并
+DataFrame studentsDF = sqlContext.read().option("mergeSchema", "true").parquet("/home/sotowang/Desktop/students");
 
+studentsDF.printSchema();
+studentsDF.show();
+```
 
+结果
 
+```markdown
++-----+----+-----+
+| name| age|grade|
++-----+----+-----+
+|  leo|  23| null|
+| Jack|  25| null|
+|marry|null|    A|
+|  tom|null|    B|
++-----+----+-----+
+
+```
 
 
 
