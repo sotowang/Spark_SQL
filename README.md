@@ -219,7 +219,7 @@ usersDF.show();
 usersDF.select("name","favorite_color").write().save("/home/sotowang/Desktop/nameAndColors.parquet");
 ```
 
-### 手动指定数据源类型
+### 手动指定数据源类型  ManuallySpecifyOptions.java
 
 ```java
 DataFrame usersDF = sqlContext.read()
@@ -233,14 +233,24 @@ usersDF.select("name","favorite_color")
         .save("/home/sotowang/Desktop/nameAndColors");
 ```
 
+### saveMode  SaveModeTest.java
+
+SaveMode.ErrorIfExists  文件存在会报错
+
+```java
+usersDF.save("/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject/src/resources/users.parquet", SaveMode.ErrorIfExists);
+```
+
+SaveMode.Append   存在追加数据
+
+```java
+usersDF.save("/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject/src/resources/users.parquet", SaveMode.Append);
+```
+
+SaveMode.Overwrite  覆盖
 
 
-
-
-
-
-
-
+SaveMode.ignore 忽略
 
 
 
