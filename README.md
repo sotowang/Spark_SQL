@@ -221,6 +221,8 @@ usersDF.select("name","favorite_color").write().save("/home/sotowang/Desktop/nam
 
 ### 手动指定数据源类型  ManuallySpecifyOptions.java
 
+默认为 parquet
+
 ```java
 DataFrame usersDF = sqlContext.read()
                 .format("parquet")
