@@ -219,9 +219,19 @@ usersDF.show();
 usersDF.select("name","favorite_color").write().save("/home/sotowang/Desktop/nameAndColors.parquet");
 ```
 
-### 手动指定保存文件类型
+### 手动指定数据源类型
+
+```java
+DataFrame usersDF = sqlContext.read()
+                .format("parquet")
+                .load("/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject/src/resources/users.parquet");
 
 
+usersDF.select("name","favorite_color")
+        .write()
+        .format("json")
+        .save("/home/sotowang/Desktop/nameAndColors");
+```
 
 
 
