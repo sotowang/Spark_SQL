@@ -21,6 +21,11 @@ public class DataFrameCreate {
         SQLContext sqlContext = new SQLContext(jsc);
 
 
+        /**
+         * {"id":1,"name":"leo","age":18}
+         * {"id":2,"name":"jack","age":19}
+         * {"id":3,"name":"marry","age":17}
+         */
         DataFrame df =  sqlContext.read().json("/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject/src/resources/students.json");
 
 
