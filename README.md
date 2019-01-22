@@ -161,16 +161,6 @@ JavaRDD<String> lines = jsc.textFile("/home/sotowang/user/aur/ide/idea/idea-IU-1
 
 #### 以编程方式动态指定元数据,将RDD转换为DataFrame
 
-```java
-
-```
-
-出现的问题:
-
->1.报错:不能直接从String转换为Integer的一个类型转换错误,说明有个数据,给定义成了String类型,结果使用的时候
-要用Integer类型来使用,错误报在sql相关的代码中.在sql中,用到age<=18语法,所以强行将age转换为Integer来使用,
-但之前有些步骤将age定义了String
-
 
 ```java
  //第一步,创建一个普通的RDD,但是,必须将其转换为RDD<Row>的这种格式
@@ -209,10 +199,27 @@ JavaRDD<String> lines = jsc.textFile("/home/sotowang/user/aur/ide/idea/idea-IU-1
 ```
 
 
+出现的问题:
 
+>1.报错:不能直接从String转换为Integer的一个类型转换错误,说明有个数据,给定义成了String类型,结果使用的时候
+要用Integer类型来使用,错误报在sql相关的代码中.在sql中,用到age<=18语法,所以强行将age转换为Integer来使用,
+但之前有些步骤将age定义了String
 
+---
 
+### 通用的load和save操作  GenericLoadSave.java
 
+```java
+DataFrame usersDF = sqlContext.read().load("/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject/src/resources/users.parquet");
+
+usersDF.printSchema();
+
+usersDF.show();
+
+usersDF.select("name","favorite_color").write().save("/home/sotowang/Desktop/nameAndColors.parquet");
+```
+
+### 手动指定保存文件类型
 
 
 
