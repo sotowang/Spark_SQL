@@ -255,11 +255,42 @@ SaveMode.Overwrite  覆盖
 SaveMode.ignore 忽略
 
 
+---
 
+##  数据源Parquet之使用编程方式加载数据  ParquetLoadData.java
 
+* Parquet是面向分析型业务的列式存储格式
 
+列式存储与行式存储有哪些优势?
 
+```markdown
+1. 可以路过不符合条件的数据,只需要读取需要的数据,了筏IO数据量
+2. 压缩编码可以降低磁盘存储空间,由于同一列的数据类型是一样的,可以使用更高效的压缩编码(如Run Length Encoding和Delta Encoding) 进一步节约存储空间
+3. 只读取需要的列,支持向量运算,能够获取更好的扫描性能
 
+```
+
+```java
+DataFrame usersDF = sqlContext.read().parquet("/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject/src/resources/users.parquet");
+
+//将DataFrame注册为临时表,使用SQL查询需要的数据
+usersDF.registerTempTable("users");
+
+DataFrame userNameDf = sqlContext.sql("select name from users ");
+
+//对查询出的DataFrame进行transformation操作,处理数据,然后打印
+List<String> userNames = userNameDf.javaRDD().map(new Function<Row, String>() {
+    public String call(Row row) throws Exception {
+        return "Name: " + row.getString(0);
+    }
+}).collect();
+
+for (String userName : userNames) {
+    System.out.println(userName);
+}
+```
+
+## 数据源Parquet之自动分区推断 
 
 
 
