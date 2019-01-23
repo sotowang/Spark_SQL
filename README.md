@@ -386,37 +386,99 @@ Spark SQL可以自动推断JSON文件的元数据,并且加载其数据,创建�
 > 注: 默认DataFrame中将数字类型转为Long而不是Int,要将Long型转为Integer型需要Integer.valueOf(String.valueOf(row.getLong(1)))
 
 
+## Hive数据源 (企业常用)   HiveDataSource.java
 
 
 
+>操作Hive使用HiveContext而为是SQLContext.HiveContext继承自SQLContext,但是增加了在Hive元数据库中查找表,以及用HiveQL语法编写SQL功能,
+除了sql()方法,HiveContext还提供了hql()方法,从而Hive语法来编译.
+Hive中查询出来的数据是一个Row数组
 
+将hive-site.xml拷贝到spark/conf目录下,将mysql connector 拷贝到spark/lib 目录下
 
+* Spark SQL允许将数据保存到Hive表中,调用DataFrame的saveAsTable命令,即可将DaraFrame中的数据保存到Hive表中.与registerTempTable不同,
+saveAsTable是会将DataFrame中的数据物化到Hive表中的,而且还会在Hive元数据库中创建表的元数据
 
+* 默认情况下,saveAsTable会创建一张Hive Managed Table,也就是说,数据的位置都是由元数据中的信息控制的.当Managed Table被删除时,表中的数据也传动一并被
+物理删除
 
+* regiserTempTable只是注册一个临时的表,只要Spark Application重启或停止了,表就没了,而saveAsTable是物化的表,表会一直存在
 
+* 调用HiveContext.table() 方法,还可以直接针对Hive中的表,创建一个DataFrame
 
+案例: 查询分数大于80分的学生信息
 
+*  创建HiveContext,注意:它接收的是sparkContext为参数而不是JavaSparkContext
 
+>HiveContext hiveContext = new HiveContext(jsc.sc());
 
+* 第一个功能:使用HiveContext的sql()/hql() 方法,可以执行Hive中能执行的HiveQL语句
 
+```java
+                //第一个功能:使用HiveContext的sql()/hql() 方法,可以执行Hive中能执行的HiveQL语句
+        
+                //判断是否存在student_infos,若存在则删除
+                hiveContext.sql("DROP TABLE IF EXISTS student_infos");
+                //如果不存在,则创建该表
+                hiveContext.sql("CREATE TABLE IF NOT EXISTS  student_infos(name STRING, age INT ) row format delimited fields terminated by ','");
+                //将学生基本信息数据导入student_infos表
+                hiveContext.sql("LOAD DATA " +
+                        " LOCAL INPATH '/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject/src/resources/student_infos.txt' " +
+                        " INTO TABLE student_infos ");
+        
+                //用同样的方式给student_scores导入数据
+                hiveContext.sql("DROP TABLE IF EXISTS student_scores ");
+                hiveContext.sql("CREATE TABLE IF NOT EXISTS student_scores(name STRING, score INT ) row format delimited fields terminated by ','");
+                hiveContext.sql("LOAD DATA " +
+                        " LOCAL INPATH '/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject/src/resources/student_scores.txt' " +
+                        " INTO TABLE student_scores ");
 
+```
 
+* 第二个功能,执行sql还可以返回DataFrame,用于查询
 
+```java
+      //第二个功能,执行sql还可以返回DataFrame,用于查询
+      
+              //执行sql查询,关联两张表,查询成绩大于80分的学生
+              DataFrame goodStudentDF = hiveContext.sql(" SELECT si.name name, si.age age, ss.score score " +
+                      " FROM student_infos si " +
+                      " JOIN student_scores ss ON si.name =ss.name " +
+                      " WHERE ss.score >= 80 ");
 
+```
 
+* 第三个功能,可以将DataFrame中的数据,理论上来说,DataFrame对应的RDD元素是Row即可将DataFrame中的数据保存到hive表中
 
+```java
+//第三个功能,可以将DataFrame中的数据,理论上来说,DataFrame对应的RDD元素是Row即可将DataFrame中的数据保存到hive表中
 
+        //将DataFrame中的数据保存到good_student_infos
+        hiveContext.sql("DROP TABLE IF EXISTS good_student_infos ");
+        goodStudentDF.saveAsTable("good_student_infos");
+```
 
+* 第四个功能:可以用table() 方法针对hive表,直接创建,DataFrame
 
+```java
+       //第四个功能:可以用table() 方法针对hive表,直接创建DataFrame
+               //然后针对good_student_infos表直接创建DataFrame
+               Row[] goodStudentsRows = hiveContext.table("good_student_infos").collect();
+       
+               for (Row row : goodStudentsRows) {
+                   System.out.println(row);
+               }
+```
 
+注1：实际运行过程中出现报错如下:
 
+>  MetaException(message:file:/user/hive/warehouse/src is not a directory or unable to create one)
 
+解决方法:将hive-site.xml 放至resources目录下
 
+注2:导入HDFS后,表内没数据,因为文件分隔符没有指定为空格
 
-
-
-
-
+>hiveContext.sql("CREATE TABLE IF NOT EXISTS  student_infos(name STRING, age INT ) row format delimited fields terminated by ','");
 
 
 
