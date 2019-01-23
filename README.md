@@ -481,17 +481,70 @@ saveAsTable是会将DataFrame中的数据物化到Hive表中的,而且还会在H
 >hiveContext.sql("CREATE TABLE IF NOT EXISTS  student_infos(name STRING, age INT ) row format delimited fields terminated by ','");
 
 
+## JDBC数据源 JDBCDataSource.java
 
+案例:查询分数大于80分的学生信息
 
+1. mysql创建数据库
 
+> mysql> create database testdb;
 
+> mysql> create table student_infos(name varchar(20),age integer);
 
+> mysql> create table student_scores(name varchar(20),score integer);
 
+> mysql> create table good_student_infos(name varchar(20),age integer,score integer);
 
+> mysql> insert into student_infos values('leo',18),('marry',17),('jack',19);
 
+> mysql> insert into student_scores values('leo',88),('marry',99),('jack',60);
 
+2. 读取mysql表
 
+```java
+Map<String, String> options = new HashMap<String, String>();
+options.put("url", "jdbc:mysql://sotowang-pc:3306/testdb");
+options.put("user", "root");
+options.put("password", "123456");
 
+options.put("dbtable", "student_infos");
+DataFrame studentInfoDF = sqlContext.read().format("jdbc").options(options).load();
+```
+
+3. 将DataFrame中的数据保存到Mysql数据表中
+
+```java
+        //将DataFrame中的数据保存到Mysql数据表中
+        studentDF.javaRDD().foreach(new VoidFunction<Row>() {
+            public void call(Row row) throws Exception {
+
+                String sql = " insert into good_student_infos values('"
+                        + row.getString(0) + "'," +
+                        Integer.valueOf(String.valueOf(row.get(1))) + "," +
+                        Integer.valueOf(String.valueOf(row.get(2))) + ")";
+
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection conn = null;
+                Statement statement = null;
+                try {
+                    conn = DriverManager.getConnection(
+                            "jdbc:mysql://sotowang-pc:3306/testdb", "root", "123456"
+                    );
+                    statement = conn.createStatement();
+                    statement.executeUpdate(sql);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }finally {
+                    if (statement != null) {
+                        statement.close();
+                    }
+                    if (conn != null) {
+                        conn.close();
+                    }
+                }
+            }
+        });
+```
 
 
 
