@@ -22,7 +22,7 @@ import static org.apache.spark.sql.functions.countDistinct;
 public class DailyUV1 {
     public static void main(String[] args) {
         SparkConf sparkConf = new SparkConf()
-                .setAppName("JDBCDataSource")
+                .setAppName("DailyUV1")
                 .setMaster("local[2]");
 
         JavaSparkContext jsc = new JavaSparkContext(sparkConf);

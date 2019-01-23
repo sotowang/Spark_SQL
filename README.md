@@ -569,7 +569,7 @@ JavaRDD<Row> userAccessLogDistinctedRowRDD = userAccessLogRowDF.groupBy("date")
                 .javaRDD();
 ```
 
-
+## 内置函数:sum() DailySale.java
 
 
 
