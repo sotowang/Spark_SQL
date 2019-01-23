@@ -546,11 +546,28 @@ DataFrame studentInfoDF = sqlContext.read().format("jdbc").options(options).load
         });
 ```
 
+---
+
+# Spark SQL高级内置函数
+
+案例:根据每天的用户访问的购买日志统计每日的uv和销售额  (uv指:对用户进行去重以后的访问总数)
 
 
+## 内置函数:countDistinct() DailyUV1.java
 
+### 聚合函数用法 
 
+>首先对DataFrame调用groupBy()方法,对某一列进行分组,
+然后调用agg()方法,对数为内置函数,对见其源码
 
+* 注:能过阅读Spark agg方法源码,得知需要手动导入api:__ 才能使用agg(countDistinct("userid"))方法
+
+```java
+import static org.apache.spark.sql.functions.countDistinct;
+JavaRDD<Row> userAccessLogDistinctedRowRDD = userAccessLogRowDF.groupBy("date")
+                .agg(countDistinct("userid"))  //(date,count(userid))
+                .javaRDD();
+```
 
 
 
