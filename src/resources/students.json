@@ -1,4 +1,3 @@
-1,leo,18
-2,jack,19
-3,marry,17
-4,tom,19
+{"name":"Leo","score": 85}
+{"name":"Marry","score": 99}
+{"name":"Jack","score": 74}

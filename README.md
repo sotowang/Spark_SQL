@@ -371,8 +371,19 @@ studentsDF.show();
 
 ```
 
+## Json数据源  JSONDataSource.java
+Spark SQL可以自动推断JSON文件的元数据,并且加载其数据,创建一个DataFrame,可以使用SQLContext.read.json()方法,针对一个元素类型为String
+的RDD,或者是一个JSON文件
+
+> 注意:这里使用的JSON文件与传统意义上的JSON文件是不一样的,每行都必须也只能包含一个单独的,包含的有效的JSON对象,不能让一个JSON对象分散在钓竿,否则会报错
 
 
+
+案例: 查询成绩为80分以上的学生的基本信息与成绩信息
+
+> 注:sqlContext.read().json(studentInfoJSONsRDD)  ==> 该API可以接受一个JavaRDD<String>直接转为DataFrame,与前面所讲的反射不一样
+
+> 注: 默认DataFrame中将数字类型转为Long而不是Int,要将Long型转为Integer型需要Integer.valueOf(String.valueOf(row.getLong(1)))
 
 
 

@@ -21,6 +21,12 @@ public class RDD2DataFrameReflection {
         SQLContext sqlContext = new SQLContext(jsc);
 
 
+        /**
+         * 1,leo,18
+         * 2,jack,19
+         * 3,marry,17
+         * 4,tom,19
+         */
         JavaRDD<String> lines = jsc.textFile("/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject/src/resources/students.json");
 
         JavaRDD<Student> students = lines.map(new Function<String, Student>() {

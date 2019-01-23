@@ -30,6 +30,13 @@ public class RDD2DataFrameProgrammatically {
 
         SQLContext sqlContext = new SQLContext(jsc);
 
+
+        /**
+         * 1,leo,18
+         * 2,jack,19
+         * 3,marry,17
+         * 4,tom,19
+         */
         //第一步,创建一个普通的RDD,但是,必须将其转换为RDD<Row>的这种格式
         final JavaRDD<String> lines = jsc.textFile("/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject/src/resources/students.json");
 
