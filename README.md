@@ -590,7 +590,7 @@ hiveContext.sql("load data " +
 
 ```
 
-*使用row_number()开窗函数row_number()
+* 使用row_number()开窗函数row_number()
 作用就是给你一份每个分组的数据 按照其排序打上一个分组内的行号
 比如:有一个分组date=20181001,里面有3条数据,1122,1121,1124,
 那么对这个分组的每一行使用row_num()开窗函数以后,三等依次会获得一个组内行号行号从1开始递增,
@@ -620,9 +620,30 @@ hiveContext.sql("drop table if exists top3_sales ");
 top3SalesDF.saveAsTable("top3_sales");
 ```
 
+---
+# Spark SQL 与 Hive On Spark
 
+Spark SQL: 
 
+```markdown
+1. Spark 自己研发出来的,针对各种数据源:Hive,Parquet,JDBC,RDD等都可以执行查询,一套基于Spark计算引擎的查询引擎
 
+2. 它是一个Spark项目,只不过是提供了针对Hive执行查询的功能而已
+
+3. 适用于Spark技术栈的大数据应用类系统,舆情分析系统,风控系统,用户行为分析系统...
+
+```
+
+Hive On Spark:
+
+```markdown
+1. 是一个Hive项目,指不通过MapReduce作为唯一的查询引擎,而是将Spark作为底层的查询引擎
+
+2. Hive On Spark,只适用于Spark,在可预见的未来,很有可能Hive默认的底层引擎就从MapReduce切换为Spark了
+
+3. 适合将原有的Hive数据仓库以及数据统计分析替换为Spark引擎,作为全公司通用的大数据分析引擎
+
+```
 
 
 
