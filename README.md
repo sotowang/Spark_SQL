@@ -643,13 +643,56 @@ Hive On Spark:
 
 ```
 
+---
 
+# Spark SQL与Spark Core合并  DailyTop3KeyWord.java
 
+## 案例: 每日top3 热点搜索词统计案例实战
 
+数据格式:
 
+```markdown
+日期 用户 搜索词 城市 平台 版本
 
+```
 
+需求:
 
+```markdown
+1. 筛选出符合查询条件的数据
+2. 统计出每天搜索uv排名前3的搜索词
+3. 按照每天的top3搜索词搜索总次数,侄是序排序
+4. 将数据保存到hive表中
+
+```
+
+思路分析:
+
+```markdown
+1. 针对原始数据(HDFS文件),获取输入的RDD
+2. 使用filter牌子,去针对输入RDD中的数据,进行数据过滤,过滤出符合查询条件的数据
+    2.1 普通的做法:直接在filter牌子函数中,使用外部的查询条件(Map),但这样做的话,查询条件Map会发送到每一个task一个副本
+    2.2 优化后的做法:将查询条件封装为Broadcast广播变量,在filter算子中,使用Broadcast广播变量
+3. 将数据转换为"(日期_搜索词, 用户) "的格式然后转换进行分级,然后再次进行映射,对每天每个搜索词的用户进行去重操作,并统计去重后的数量,即为每天每个搜索词的uv,最后获得"(日期_搜索词,uv)"
+4. 将得到的每天每个搜索词的uv,RDD,映射为元素类型为Row的RDD,将该RDD转换为DataFrame
+5. 将DataFrame注册为临时表,使用Spark SQL的开窗函数,来统计每天的uv数量排名前3的搜索词,以及它的搜索uv,最后获取,是一个DataFrame
+6. 将DataFrame转换为RDD,继续操作按照每天日期来进行分级,并进行映射,计算出每天的top3搜索词的搜索uv的总数,然后uv总数为key,将每天top3搜索词以及搜索次数拼接为一个字符串
+7. 按照每天的top3 搜索总uv,再次映射回来,变成"日期_搜索词_uv"的格式
+8. 再次映射为DataFra,e,并将数据保存到Hive中
+
+```
+
+* 遇到的问题:
+
+1. 在生成hive表时显示,hdfs文件已存在
+
+```markdown
+Exception in thread "main" org.apache.spark.sql.AnalysisException: path hdfs://sotowang-pc:9000/user/hive/warehouse/daily_top3_keyword_uv already exists.;
+```
+
+解决方法:
+
+> hadoop fs -rm -r /user/hive/warehouse/daily_top3_keyword_uv
 
 
 
