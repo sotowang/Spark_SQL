@@ -106,7 +106,7 @@ public class JDBCDataSource {
                 Statement statement = null;
                 try {
                     conn = DriverManager.getConnection(
-                            "jdbc:mysql://sotowang-pc:3306/testdb", "root", "123456"
+                            "jdbc:mysql://127.0.0.1:3306/testdb", "root", "123456"
                     );
                     statement = conn.createStatement();
                     statement.executeUpdate(sql);

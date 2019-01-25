@@ -588,9 +588,7 @@ hiveContext.sql("load data " +
         " into table sales ");
 
 
-```
-
-* 使用row_number()开窗函数row_number()
+```* 使用row_number()开窗函数row_number()
 作用就是给你一份每个分组的数据 按照其排序打上一个分组内的行号
 比如:有一个分组date=20181001,里面有3条数据,1122,1121,1124,
 那么对这个分组的每一行使用row_num()开窗函数以后,三等依次会获得一个组内行号行号从1开始递增,

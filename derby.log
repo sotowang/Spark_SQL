@@ -1,13 +1,13 @@
 ----------------------------------------------------------------
-Wed Jan 23 21:54:14 CST 2019:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0168-7afd-687d-0000083e7bc0 
-on database directory /tmp/spark-728b3da3-824a-4a9b-aaf6-c45efecee50d/metastore with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 
+Fri Jan 25 15:02:22 CST 2019:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.11.1.1 - (1616546): instance a816c00e-0168-83d1-0caa-00000aa83b88 
+on database directory /tmp/spark-4e65ecf0-c84c-4b9e-9baf-5ba02c8f07fe/metastore with class loader sun.misc.Launcher$AppClassLoader@18b4aac2 
 Loaded from file:/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/plugins/maven/repository/org/apache/derby/derby/10.11.1.1/derby-10.11.1.1.jar
 java.vendor=Oracle Corporation
-java.runtime.version=1.8.0_192-b26
+java.runtime.version=1.8.0_201-b09
 user.dir=/home/sotowang/user/aur/ide/idea/idea-IU-182.3684.101/workspace/SparkSQLProject
 os.name=Linux
 os.arch=amd64
-os.version=4.14.92-1-MANJARO
+os.version=4.15.0-29deepin-generic
 derby.system.home=null
 Database Class Loader started - derby.database.classpath=''
